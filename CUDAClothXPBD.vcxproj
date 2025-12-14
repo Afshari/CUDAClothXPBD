@@ -57,6 +57,7 @@
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
       <Include>$(SolutionDir)inc;C:\boost;%(Include)</Include>
+      <GenerateRelocatableDeviceCode>true</GenerateRelocatableDeviceCode>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -80,9 +81,15 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <CudaCompile Include="main.cu" />
-    <CudaCompile Include="src\vec3.cu" />
+    <CudaCompile Include="src\cloth.cu" />
+    <CudaCompile Include="src\kernels.cu" />
+    <CudaCompile Include="src\vec3.cu">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </CudaCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="inc\cloth.cuh" />
+    <ClInclude Include="inc\kernels.cuh" />
     <ClInclude Include="inc\utils.h" />
     <ClInclude Include="inc\vec3.cuh" />
   </ItemGroup>
