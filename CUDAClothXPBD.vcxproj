@@ -93,11 +93,13 @@
     <ClInclude Include="inc\camera.h" />
     <ClInclude Include="inc\cloth.cuh" />
     <ClInclude Include="inc\kernels.cuh" />
+    <ClInclude Include="inc\state.h" />
     <ClInclude Include="inc\utils.h" />
     <ClInclude Include="inc\vec3.cuh" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\camera.cpp" />
+    <ClCompile Include="src\state.cpp" />
     <ClCompile Include="src\utils.cpp" />
   </ItemGroup>
   <ItemGroup>

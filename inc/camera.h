@@ -18,19 +18,19 @@ class Camera {
 public:
     Camera();
 
-    void setView();
-    void lookAt(const glm::dvec3& position, const glm::dvec3& target);
+    void set_view();
+    void look_at(const glm::dvec3& position, const glm::dvec3& target);
 
-    void handleMouseTranslate(double dx, double dy);
-    void handleWheel(int direction);
-    void handleMouseView(double dx, double dy);
-    void handleKeyDown(unsigned char key, int x, int y);
-    void handleKeyUp(unsigned char key, int x, int y);
-    void handleSpecialKeyDown(int key, int x, int y);
-    void handleSpecialKeyUp(int key, int x, int y);
-    void handleSpecialKey();
-    void handleKeys();
-    void handleMouseOrbit(double dx, double dy, const glm::dvec3& center);
+    void handle_mouse_translate(double dx, double dy);
+    void handle_wheel(int direction);
+    void handle_mouse_view(double dx, double dy);
+    void handle_key_down(unsigned char key, int x, int y);
+    void handle_key_up(unsigned char key, int x, int y);
+    void handle_special_key_down(int key, int x, int y);
+    void handle_special_key_up(int key, int x, int y);
+    void handle_special_key();
+    void handle_keys();
+    void handle_mouse_orbit(double dx, double dy, const glm::dvec3& center);
 
 private:
     glm::dvec3 pos{ 0.0, 1.0, 5.0 };
@@ -40,11 +40,11 @@ private:
 
     double fov = 60.0;   // degrees
     double aspect = 1.0;  // width / height
-    double zNear = 0.1;
-    double zFar = 1000.0;
+    double z_near = 0.1;
+    double z_far = 1000.0;
 
     double speed;
-    std::vector<bool> keyDown;
-    std::vector<bool> specialKeyDown;
+    std::vector<bool> key_down;
+    std::vector<bool> special_key_down;
 
 };

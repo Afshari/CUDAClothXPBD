@@ -4,14 +4,14 @@
 Camera::Camera() {
     speed = 0.1;
     right = glm::normalize(glm::cross(forward, up));
-    keyDown.assign(256, false);
-    specialKeyDown.assign(256, false);
+    key_down.assign(256, false);
+    special_key_down.assign(256, false);
 }
 
-void Camera::setView() {
+void Camera::set_view() {
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(fov, aspect, zNear, zFar);
+    gluPerspective(fov, aspect, z_near, z_far);
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
@@ -22,7 +22,7 @@ void Camera::setView() {
     );
 }
 
-void Camera::lookAt(const glm::dvec3& position, const glm::dvec3& target) {
+void Camera::look_at(const glm::dvec3& position, const glm::dvec3& target) {
     pos = position;
     forward = glm::normalize(target - position);
     up = glm::dvec3(0.0, 1.0, 0.0);
@@ -30,17 +30,17 @@ void Camera::lookAt(const glm::dvec3& position, const glm::dvec3& target) {
     up = glm::normalize(glm::cross(right, forward));
 }
 
-void Camera::handleMouseTranslate(double dx, double dy) {
+void Camera::handle_mouse_translate(double dx, double dy) {
     double s = glm::length(pos) * 0.001;
     pos -= right * (s * dx);
     pos += up * (s * dy);
 }
 
-void Camera::handleWheel(int direction) {
+void Camera::handle_wheel(int direction) {
     pos += forward * (direction * speed);
 }
 
-void Camera::handleMouseView(double dx, double dy) {
+void Camera::handle_mouse_view(double dx, double dy) {
     double s = 0.005;
     glm::dquat qYaw = glm::angleAxis(-dx * s, glm::normalize(up));
     glm::dquat qPitch = glm::angleAxis(-dy * s, glm::normalize(right));
@@ -54,39 +54,39 @@ void Camera::handleMouseView(double dx, double dy) {
     forward = glm::normalize(glm::cross(up, right));
 }
 
-void Camera::handleKeyDown(unsigned char key, int x, int y) {
-    keyDown[key] = true;
+void Camera::handle_key_down(unsigned char key, int x, int y) {
+    key_down[key] = true;
 }
 
-void Camera::handleKeyUp(unsigned char key, int x, int y) {
-    keyDown[key] = false;
+void Camera::handle_key_up(unsigned char key, int x, int y) {
+    key_down[key] = false;
 }
 
-void Camera::handleSpecialKeyDown(int key, int x, int y) {
-    specialKeyDown[key] = true;
+void Camera::handle_special_key_down(int key, int x, int y) {
+    special_key_down[key] = true;
 }
 
-void Camera::handleSpecialKeyUp(int key, int x, int y) {
-    specialKeyDown[key] = false;
+void Camera::handle_special_key_up(int key, int x, int y) {
+    special_key_down[key] = false;
 }
 
-void Camera::handleSpecialKey() {
-    if (specialKeyDown[GLUT_KEY_UP])    pos += forward * speed;
-    if (specialKeyDown[GLUT_KEY_DOWN])  pos -= forward * speed;
-    if (specialKeyDown[GLUT_KEY_LEFT])  pos -= right * speed;
-    if (specialKeyDown[GLUT_KEY_RIGHT]) pos += right * speed;
+void Camera::handle_special_key() {
+    if (special_key_down[GLUT_KEY_UP])    pos += forward * speed;
+    if (special_key_down[GLUT_KEY_DOWN])  pos -= forward * speed;
+    if (special_key_down[GLUT_KEY_LEFT])  pos -= right * speed;
+    if (special_key_down[GLUT_KEY_RIGHT]) pos += right * speed;
 }
 
-void Camera::handleKeys() {
-    if (keyDown['w']) pos += forward * speed;
-    if (keyDown['s']) pos -= forward * speed;
-    if (keyDown['a']) pos -= right * speed;
-    if (keyDown['d']) pos += right * speed;
-    if (keyDown['q']) pos += up * speed;
-    if (keyDown['e']) pos -= up * speed;
+void Camera::handle_keys() {
+    if (key_down['w']) pos += forward * speed;
+    if (key_down['s']) pos -= forward * speed;
+    if (key_down['a']) pos -= right * speed;
+    if (key_down['d']) pos += right * speed;
+    if (key_down['q']) pos += up * speed;
+    if (key_down['e']) pos -= up * speed;
 }
 
-void Camera::handleMouseOrbit(double dx, double dy, const glm::dvec3& center) {
+void Camera::handle_mouse_orbit(double dx, double dy, const glm::dvec3& center) {
     glm::dvec3 offset = pos - center;
 
     double s = 0.01;
