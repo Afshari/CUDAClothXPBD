@@ -23,7 +23,7 @@
 
 ## Video
 
-[Source Code](https://github.com/Afshari/CUDAClothXPBD)
+[Video](https://www.youtube.com/shorts/XVV7eu9y8m0)
 
 ---
 
