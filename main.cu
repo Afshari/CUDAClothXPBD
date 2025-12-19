@@ -13,7 +13,11 @@
 
 State* g_state = nullptr;
 
+static int xx = 0;
 void timer_callback_wrapper(int value) {
+    if(xx == 2)
+        std::cin.get();
+    xx++;
     g_state->timer_callback(value);
 }
 void show_screen_cloth_wrapper() {
@@ -41,7 +45,6 @@ void process_special_keys_up_wrapper(int key, int x, int y) {
 
 int main(int argc, char** argv) {
 
-    std::cout << "------------- START OF EXECUTION -------------" << std::endl;
     boost::this_thread::sleep_for(boost::chrono::seconds(2));
 
     State state(argc, argv);

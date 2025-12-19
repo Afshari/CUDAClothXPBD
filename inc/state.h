@@ -44,8 +44,8 @@ private:
     //void step_simulation();    
 
 private:
-    int screen_width = 800;
-    int screen_height = 800;
+    int screen_width = 900;
+    int screen_height = 900;
 
     // Ground
     static constexpr int ground_num_tiles = 30;
@@ -62,8 +62,8 @@ private:
 
     // Cloth
     Cloth* cloth;
-    int cloth_num_x = 150;
-    int cloth_num_y = 150;
+    int cloth_num_x = 200;
+    int cloth_num_y = 200;
     float cloth_y = 2.2;
     float cloth_spacing = 0.01;
 
