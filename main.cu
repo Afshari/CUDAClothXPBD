@@ -13,11 +13,7 @@
 
 State* g_state = nullptr;
 
-static int xx = 0;
 void timer_callback_wrapper(int value) {
-    if(xx == 2)
-        std::cin.get();
-    xx++;
     g_state->timer_callback(value);
 }
 void show_screen_cloth_wrapper() {
