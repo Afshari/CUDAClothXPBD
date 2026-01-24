@@ -1,6 +1,6 @@
 
 #include "state.h"
-
+#include "conf.h"
 
 State::State(int block_size, int argc, char** argv) :
     block_size(block_size),
@@ -174,8 +174,10 @@ void State::show_screen_cloth() {
 int frame_counter = 0;
 void State::timer_callback(int value) {
 
+#ifdef PROFILE_MODE
     frame_counter += 1;
-    //if (frame_counter > 10) exit(0);
+    if (frame_counter > PROFILE_LOOP_COUNT) exit(0);
+#endif
 
     show_screen_cloth();
 

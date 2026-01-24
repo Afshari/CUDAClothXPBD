@@ -20,7 +20,5 @@ __global__ void update_vel(float dt, Vec3<float>* prevPos, Vec3<float>* pos, Vec
 __global__ void add_normals(Vec3<float>* pos, int* triIds, Vec3<float>* normals, int numTriangles);
 __global__ void normalize_normals(Vec3<float>* normals, int numNormals);
 
-// void update_mesh(Vec3<float>* d_pos, int* d_triIds, Vec3<float>* d_normals, Vec3<float>* h_normals, int numTris, int numParticles);
-
 __global__ void raycast_triangle(Vec3<float> orig, Vec3<float> dir, Vec3<float>* pos, int* tri_ids, float* dist, int num_tris);
 

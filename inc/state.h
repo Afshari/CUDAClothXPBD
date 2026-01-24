@@ -50,7 +50,6 @@ private:
 
     // Simulation
     const float dt = 1.0f / 60.0f;
-    const int num_substeps = 15;
     std::vector<float> gravity = { 0.0f, -10.0f, 0.0f };
     Vec3<float> sphere_center{ 0.0, 1.5, 0.0 };
     float sphere_radius = 0.4f;

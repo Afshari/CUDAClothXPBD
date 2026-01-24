@@ -126,28 +126,6 @@ __global__ void update_vel(float dt, Vec3<float>* prev_pos, Vec3<float>* pos, Ve
 }
 
 
-//void update_mesh(int block_size, Vec3<float>* d_pos, int* d_tri_ids, Vec3<float>* d_normals, Vec3<float>* h_normals,
-//    int num_tris, int num_particles) {
-//
-//    // Zero out the normals on the device
-//    cudaMemset(d_normals, 0, num_particles * sizeof(Vec3<float>));
-//
-//    // Launch the add_normals kernel
-//    int threadsPerBlock = block_size;
-//    int blocksPerGrid = (num_tris + threadsPerBlock - 1) / threadsPerBlock;
-//    add_normals << <blocksPerGrid, threadsPerBlock >> > (d_pos, d_tri_ids, d_normals, num_tris);
-//    cudaDeviceSynchronize();
-//
-//    // Launch the normalize_normals kernel
-//    blocksPerGrid = (num_particles + threadsPerBlock - 1) / threadsPerBlock;
-//    normalize_normals << <blocksPerGrid, threadsPerBlock >> > (d_normals, num_particles);
-//    cudaDeviceSynchronize();
-//
-//    // Copy the results back to the host
-//    cudaMemcpy(h_normals, d_normals, num_particles * sizeof(Vec3<float>), cudaMemcpyDeviceToHost);
-//}
-
-
 __global__ void raycast_triangle(
     Vec3<float> orig, Vec3<float> dir, Vec3<float>* pos,
     int* tri_ids, float* dist, int num_tris) {

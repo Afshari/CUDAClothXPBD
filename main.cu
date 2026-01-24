@@ -11,6 +11,7 @@
 #include <boost/program_options.hpp>
 
 #include "state.h"
+#include "conf.h"
 
 State* g_state = nullptr;
 
@@ -47,15 +48,12 @@ int main(int argc, char** argv) {
     int blk_size;
     boost::program_options::options_description desc("Options");
     desc.add_options()
-        ("value", boost::program_options::value<int>(&blk_size)->default_value(256));
+        ("value", boost::program_options::value<int>(&blk_size)->default_value(DEFAULT_BLOCK_SIZE));
     boost::program_options::positional_options_description pos;
     pos.add("value", 1);
     boost::program_options::variables_map vm;
     store(boost::program_options::command_line_parser(argc, argv)
-        .options(desc)
-        .positional(pos)
-        .run(),
-        vm);
+        .options(desc).positional(pos).run(), vm);
     notify(vm);
 
     std::cout << "Block Size: " << blk_size << std::endl;
