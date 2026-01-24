@@ -11,7 +11,7 @@
 
 class State {
 public:
-    State(int argc, char** argv);
+    State(int block_size, int argc, char** argv);
     ~State();
 
     void init();
@@ -33,19 +33,14 @@ private:
 
     // Init helpers
     void build_ground();
-    //void create_cloth();
 
     // Render helpers
-    //void draw_ground();
     void draw_sphere();
-    //void draw_cloth();
-
-    // Simulation helpers
-    //void step_simulation();    
 
 private:
     int screen_width = 900;
     int screen_height = 900;
+    int block_size;
 
     // Ground
     static constexpr int ground_num_tiles = 30;

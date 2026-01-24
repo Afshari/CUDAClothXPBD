@@ -2,11 +2,12 @@
 #include "state.h"
 
 
-State::State(int argc, char** argv) :
+State::State(int block_size, int argc, char** argv) :
+    block_size(block_size),
     ground_verts(3 * 4 * ground_num_tiles * ground_num_tiles, 0.0f),
     ground_colors(3 * 4 * ground_num_tiles * ground_num_tiles, 0.0f) {
 
-    cloth = new Cloth(cloth_y, cloth_num_x, cloth_num_y, cloth_spacing, sphere_center, sphere_radius);
+    cloth = new Cloth(block_size, cloth_y, cloth_num_x, cloth_num_y, cloth_spacing, sphere_center, sphere_radius);
 
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
@@ -22,7 +23,6 @@ State::~State() {
 void State::init() {
 
     setup_opengl();
-
     build_ground();
 }
 
@@ -171,7 +171,11 @@ void State::show_screen_cloth() {
     glutSwapBuffers();
 }
 
+int frame_counter = 0;
 void State::timer_callback(int value) {
+
+    frame_counter += 1;
+    //if (frame_counter > 10) exit(0);
 
     show_screen_cloth();
 

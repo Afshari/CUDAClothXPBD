@@ -8,7 +8,8 @@
 
 class Cloth {
 public:
-    Cloth(float y_offset, int num_x, int num_y, float spacing, const Vec3<float>& sphere_center, float sphere_radius);
+    Cloth(int block_size, float y_offset, int num_x, int num_y, float spacing, 
+        const Vec3<float>& sphere_center, float sphere_radius);
 
     ~Cloth();
 
@@ -55,6 +56,7 @@ private:
 
     static constexpr float no_hit = 1.0e6f;
 
+    int block_size;
     int num_particles;
     int num_tris;
     Vec3<float>* d_pos;

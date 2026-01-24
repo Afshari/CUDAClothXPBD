@@ -8,6 +8,7 @@
 
 #include <boost/chrono.hpp>
 #include <boost/thread/thread.hpp>
+#include <boost/program_options.hpp>
 
 #include "state.h"
 
@@ -43,7 +44,23 @@ int main(int argc, char** argv) {
 
     boost::this_thread::sleep_for(boost::chrono::seconds(2));
 
-    State state(argc, argv);
+    int blk_size;
+    boost::program_options::options_description desc("Options");
+    desc.add_options()
+        ("value", boost::program_options::value<int>(&blk_size)->default_value(256));
+    boost::program_options::positional_options_description pos;
+    pos.add("value", 1);
+    boost::program_options::variables_map vm;
+    store(boost::program_options::command_line_parser(argc, argv)
+        .options(desc)
+        .positional(pos)
+        .run(),
+        vm);
+    notify(vm);
+
+    std::cout << "Block Size: " << blk_size << std::endl;
+
+    State state(blk_size, argc, argv);
     g_state = &state;
 
     state.init();

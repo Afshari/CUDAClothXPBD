@@ -24,16 +24,16 @@ __global__ void integrate(
     int p_nr = blockIdx.x * blockDim.x + threadIdx.x;
     if (p_nr >= num_particles) return;
 
-    prev_pos[p_nr] = pos[p_nr];
     if (inv_mass[p_nr] == 0.0f) {
         return;
     }
+    prev_pos[p_nr] = pos[p_nr];
     vel[p_nr] = vel[p_nr] + gravity * dt;
     pos[p_nr] = pos[p_nr] + vel[p_nr] * dt;
 
     // collisions
-    float thickness = 0.001f;
-    float friction = 0.01f;
+    constexpr float thickness = 0.001f;
+    constexpr float friction = 0.01f;
 
     float d = length(pos[p_nr] - sphere_center);
     if (d < (sphere_radius + thickness)) {
@@ -126,26 +126,26 @@ __global__ void update_vel(float dt, Vec3<float>* prev_pos, Vec3<float>* pos, Ve
 }
 
 
-void update_mesh(Vec3<float>* d_pos, int* d_tri_ids, Vec3<float>* d_normals, Vec3<float>* h_normals,
-    int num_tris, int num_particles) {
-
-    // Zero out the normals on the device
-    cudaMemset(d_normals, 0, num_particles * sizeof(Vec3<float>));
-
-    // Launch the add_normals kernel
-    int threadsPerBlock = 256;
-    int blocksPerGrid = (num_tris + threadsPerBlock - 1) / threadsPerBlock;
-    add_normals << <blocksPerGrid, threadsPerBlock >> > (d_pos, d_tri_ids, d_normals, num_tris);
-    cudaDeviceSynchronize();
-
-    // Launch the normalize_normals kernel
-    blocksPerGrid = (num_particles + threadsPerBlock - 1) / threadsPerBlock;
-    normalize_normals << <blocksPerGrid, threadsPerBlock >> > (d_normals, num_particles);
-    cudaDeviceSynchronize();
-
-    // Copy the results back to the host
-    cudaMemcpy(h_normals, d_normals, num_particles * sizeof(Vec3<float>), cudaMemcpyDeviceToHost);
-}
+//void update_mesh(int block_size, Vec3<float>* d_pos, int* d_tri_ids, Vec3<float>* d_normals, Vec3<float>* h_normals,
+//    int num_tris, int num_particles) {
+//
+//    // Zero out the normals on the device
+//    cudaMemset(d_normals, 0, num_particles * sizeof(Vec3<float>));
+//
+//    // Launch the add_normals kernel
+//    int threadsPerBlock = block_size;
+//    int blocksPerGrid = (num_tris + threadsPerBlock - 1) / threadsPerBlock;
+//    add_normals << <blocksPerGrid, threadsPerBlock >> > (d_pos, d_tri_ids, d_normals, num_tris);
+//    cudaDeviceSynchronize();
+//
+//    // Launch the normalize_normals kernel
+//    blocksPerGrid = (num_particles + threadsPerBlock - 1) / threadsPerBlock;
+//    normalize_normals << <blocksPerGrid, threadsPerBlock >> > (d_normals, num_particles);
+//    cudaDeviceSynchronize();
+//
+//    // Copy the results back to the host
+//    cudaMemcpy(h_normals, d_normals, num_particles * sizeof(Vec3<float>), cudaMemcpyDeviceToHost);
+//}
 
 
 __global__ void raycast_triangle(
