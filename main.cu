@@ -5,6 +5,7 @@
 #include <GL/gl.h>
 #include <vector>
 #include <cmath>
+#include <memory>
 
 #include <boost/chrono.hpp>
 #include <boost/thread/thread.hpp>

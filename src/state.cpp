@@ -7,7 +7,8 @@ State::State(const AppConfig& app_config, int argc, char** argv) :
     ground_verts(3 * 4 * ground_num_tiles * ground_num_tiles, 0.0f),
     ground_colors(3 * 4 * ground_num_tiles * ground_num_tiles, 0.0f) {
 
-    cloth = new Cloth(app_config.get_block_size(), app_config.get_substeps(), cloth_y, cloth_num_x, cloth_num_y, cloth_spacing, sphere_center, sphere_radius);
+    cloth = new Cloth(app_config.get_block_size(), app_config.get_substeps(), 
+        cloth_y, cloth_num_x, cloth_num_y, cloth_spacing, sphere_center, sphere_radius);
 
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
@@ -71,6 +72,20 @@ std::vector<float> State::convert_vec3_to_float_vector(const Vec3<float>* vec3_a
     return floatVector;
 }
 
+std::vector<float> State::convert_vec3_to_float_vector(const float* vec3_x, const float* vec3_y, const float* vec3_z, int num_elements) {
+
+    std::vector<float> floatVector;
+    floatVector.reserve(num_elements * 3); // Reserve space to avoid multiple allocations
+
+    for (int i = 0; i < num_elements; ++i) {
+        floatVector.push_back(vec3_x[i]);
+        floatVector.push_back(vec3_y[i]);
+        floatVector.push_back(vec3_z[i]);
+    }
+
+    return floatVector;
+}
+
 void State::build_ground() {
 
     int square_verts[4][2] = { {0,0}, {0,1}, {1,1}, {1,0} };
@@ -107,7 +122,8 @@ void State::render() {
     cloth->simulate_step();
     cloth->update_mesh();
 
-    std::vector<float> host_pos = convert_vec3_to_float_vector(cloth->get_host_pos(), cloth->get_num_particles());
+    std::vector<float> host_pos = convert_vec3_to_float_vector(
+        cloth->get_host_pos_x(), cloth->get_host_pos_y(), cloth->get_host_pos_z(), cloth->get_num_particles());
     std::vector<float> host_normals = convert_vec3_to_float_vector(cloth->get_host_normals(), cloth->get_num_particles());
 
     draw_sphere();
@@ -178,7 +194,6 @@ void State::timer_callback(int value) {
         frame_counter += 1;
         if (frame_counter > app_config.profile_loop_count) exit(0);
     }
-
 
     show_screen_cloth();
 
