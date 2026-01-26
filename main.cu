@@ -5,13 +5,14 @@
 #include <GL/gl.h>
 #include <vector>
 #include <cmath>
+#include <memory>
 
 #include <boost/chrono.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/program_options.hpp>
 
 #include "state.h"
-#include "conf.h"
+#include "app_config.h"
 
 State* g_state = nullptr;
 
@@ -45,20 +46,30 @@ int main(int argc, char** argv) {
 
     boost::this_thread::sleep_for(boost::chrono::seconds(2));
 
-    int blk_size;
+    int block_size;
+    bool profile_mode = false;
+
     boost::program_options::options_description desc("Options");
     desc.add_options()
-        ("value", boost::program_options::value<int>(&blk_size)->default_value(DEFAULT_BLOCK_SIZE));
+        ("block_size", boost::program_options::value<int>(&block_size)
+            ->default_value(DEFAULT_BLOCK_SIZE))
+        ("profile_mode", boost::program_options::bool_switch(&profile_mode),
+            "Enable profile mode");
+
     boost::program_options::positional_options_description pos;
-    pos.add("value", 1);
+    pos.add("block_size", 1);
+
     boost::program_options::variables_map vm;
     store(boost::program_options::command_line_parser(argc, argv)
         .options(desc).positional(pos).run(), vm);
     notify(vm);
 
-    std::cout << "Block Size: " << blk_size << std::endl;
+    std::unique_ptr<AppConfig> app_config = std::make_unique<AppConfig>(block_size, profile_mode);
 
-    State state(blk_size, argc, argv);
+    std::cout << "Block Size: " << app_config->get_block_size() << std::endl;
+    std::cout << "Profile Mode: " << app_config->is_profile_mode() << std::endl;
+
+    State state(block_size, argc, argv);
     g_state = &state;
 
     state.init();

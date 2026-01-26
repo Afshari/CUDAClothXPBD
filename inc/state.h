@@ -8,10 +8,11 @@
 #include "camera.h"
 #include "cloth.cuh"
 #include "vec3.cuh"
+#include "app_config.h"
 
 class State {
 public:
-    State(int block_size, int argc, char** argv);
+    State(const AppConfig& app_config, int argc, char** argv);
     ~State();
 
     void init();
@@ -41,7 +42,7 @@ private:
 private:
     int screen_width = 900;
     int screen_height = 900;
-    int block_size;
+    const AppConfig app_config;
 
     // Ground
     static constexpr int ground_num_tiles = 30;
