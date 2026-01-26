@@ -29,7 +29,8 @@ private:
     void setup_opengl();
     void render();
     std::pair<Vec3<float>, Vec3<float>> get_mouse_ray(int x, int y);
-    std::vector<float> convert_vec3_to_float_vector(const Vec3<float>* vec3_array, int num_elements);
+    std::vector<float> State::convert_vec3_to_float_vector(const Vec3<float>* vec3_array, int num_elements);
+    std::vector<float> convert_vec3_to_float_vector(const float* vec3_x, const float* vec3_y, const float* vec3_z, int num_elements);
 
     // Init helpers
     void build_ground();

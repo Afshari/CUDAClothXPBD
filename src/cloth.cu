@@ -17,19 +17,29 @@ Cloth::Cloth(int block_size, float y_offset, int num_x, int num_y, float spacing
 // Destructor
 Cloth::~Cloth() {
     // Free host memory
-    delete[] h_pos;
+    delete[] h_pos_x;
+    delete[] h_pos_y;
+    delete[] h_pos_z;
     delete[] h_inv_mass;
     delete[] h_corr;
     delete[] h_normals;
     delete[] h_tri_ids;
 
     // Free device memory
-    cudaFree(d_pos);
-    cudaFree(d_prev_pos);
-    cudaFree(d_rest_pos);
+    cudaFree(d_pos_x);
+    cudaFree(d_pos_y);
+    cudaFree(d_pos_z);
+    cudaFree(d_prev_pos_x);
+    cudaFree(d_prev_pos_y);
+    cudaFree(d_prev_pos_z);
+    cudaFree(d_rest_pos_x);
+    cudaFree(d_rest_pos_y);
+    cudaFree(d_rest_pos_z);
     cudaFree(d_inv_mass);
     cudaFree(d_corr);
-    cudaFree(d_vel);
+    cudaFree(d_vel_x);
+    cudaFree(d_vel_y);
+    cudaFree(d_vel_z);
     cudaFree(d_normals);
     cudaFree(d_dist_const_ids);
     cudaFree(d_const_rest_lengths);
@@ -59,7 +69,9 @@ void Cloth::init_params(int& num_x, int& num_y) {
 }
 
 void Cloth::alloc_host_buffers(float y_offset, int num_x, int num_y) {
-    h_pos = new Vec3<float>[num_particles];
+    h_pos_x = new float[num_particles];
+    h_pos_y = new float[num_particles];
+    h_pos_z = new float[num_particles];
     h_normals = new Vec3<float>[num_particles];
     h_inv_mass = new float[num_particles];
     h_corr = new Vec3<float>[num_particles];
@@ -74,28 +86,49 @@ void Cloth::alloc_host_buffers(float y_offset, int num_x, int num_y) {
     for (int xi = 0; xi <= num_x; ++xi) {
         for (int yi = 0; yi <= num_y; ++yi) {
             int id = xi * (num_y + 1) + yi;
-            h_pos[id] = Vec3<float>(
-                ((-num_x * 0.5f + xi) * spacing),
-                y_offset,
-                ((-num_y * 0.5f + yi) * spacing)
-                );
+            h_pos_x[id] = ((-num_x * 0.5f + xi) * spacing);
+            h_pos_y[id] = y_offset;
+            h_pos_z[id] = ((-num_y * 0.5f + yi) * spacing);
         }
     }
 }
 
 void Cloth::alloc_device_buffers() {
-    cudaMalloc(&d_pos, num_particles * sizeof(Vec3<float>));
-    cudaMalloc(&d_prev_pos, num_particles * sizeof(Vec3<float>));
-    cudaMalloc(&d_rest_pos, num_particles * sizeof(Vec3<float>));
+    cudaMalloc(&d_pos_x, num_particles * sizeof(float));
+    cudaMalloc(&d_pos_y, num_particles * sizeof(float));
+    cudaMalloc(&d_pos_z, num_particles * sizeof(float));
+    
+    cudaMalloc(&d_prev_pos_x, num_particles * sizeof(float));
+    cudaMalloc(&d_prev_pos_y, num_particles * sizeof(float));
+    cudaMalloc(&d_prev_pos_z, num_particles * sizeof(float));
+    
+    cudaMalloc(&d_rest_pos_x, num_particles * sizeof(float));
+    cudaMalloc(&d_rest_pos_y, num_particles * sizeof(float));
+    cudaMalloc(&d_rest_pos_z, num_particles * sizeof(float));
+    
     cudaMalloc(&d_inv_mass, num_particles * sizeof(float));
     cudaMalloc(&d_corr, num_particles * sizeof(Vec3<float>));
-    cudaMalloc(&d_vel, num_particles * sizeof(Vec3<float>));
+    
+    cudaMalloc(&d_vel_x, num_particles * sizeof(float));
+    cudaMalloc(&d_vel_y, num_particles * sizeof(float));
+    cudaMalloc(&d_vel_z, num_particles * sizeof(float));
+    
     cudaMalloc(&d_normals, num_particles * sizeof(Vec3<float>));
 
     cudaMemcpy(d_corr, h_corr, num_particles * sizeof(Vec3<float>), cudaMemcpyHostToDevice);
-    cudaMemcpy(d_pos, h_pos, num_particles * sizeof(Vec3<float>), cudaMemcpyHostToDevice);
-    cudaMemcpy(d_prev_pos, h_pos, num_particles * sizeof(Vec3<float>), cudaMemcpyHostToDevice);
-    cudaMemcpy(d_rest_pos, h_pos, num_particles * sizeof(Vec3<float>), cudaMemcpyHostToDevice);
+
+    cudaMemcpy(d_pos_x, h_pos_x, num_particles * sizeof(float), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_pos_y, h_pos_y, num_particles * sizeof(float), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_pos_z, h_pos_z, num_particles * sizeof(float), cudaMemcpyHostToDevice);
+
+    cudaMemcpy(d_prev_pos_x, h_pos_x, num_particles * sizeof(float), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_prev_pos_y, h_pos_y, num_particles * sizeof(float), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_prev_pos_z, h_pos_z, num_particles * sizeof(float), cudaMemcpyHostToDevice);
+
+    cudaMemcpy(d_rest_pos_x, h_pos_x, num_particles * sizeof(float), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_rest_pos_y, h_pos_y, num_particles * sizeof(float), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_rest_pos_z, h_pos_z, num_particles * sizeof(float), cudaMemcpyHostToDevice);
+
     cudaMemcpy(d_inv_mass, h_inv_mass, num_particles * sizeof(float), cudaMemcpyHostToDevice);
 }
 
@@ -177,7 +210,7 @@ void Cloth::build_constraints(int num_x, int num_y) {
     int threads_per_block = block_size;
     int blocks_per_grid = (num_dist_constraints + threads_per_block - 1) / threads_per_block;
     compute_rest_lengths << <blocks_per_grid, threads_per_block >> > (
-        d_pos, d_dist_const_ids, d_const_rest_lengths, num_dist_constraints
+        d_pos_x, d_pos_y, d_pos_z, d_dist_const_ids, d_const_rest_lengths, num_dist_constraints
         );
     cudaDeviceSynchronize();
 }
@@ -228,7 +261,10 @@ void Cloth::simulate_step() {
     for (int step = 0; step < num_substeps; ++step) {
         // Step 1: Integrate positions and velocities
         integrate << <(num_particles + block_size-1) / block_size, block_size >> > (dt, gravity, d_inv_mass,
-            d_prev_pos, d_pos, d_vel, sphere_center, sphere_radius, num_particles);
+            d_prev_pos_x, d_prev_pos_y, d_prev_pos_z, 
+            d_pos_x, d_pos_y, d_pos_z, 
+            d_vel_x, d_vel_y, d_vel_z, 
+            sphere_center, sphere_radius, num_particles);
         cudaDeviceSynchronize();
 
         // Step 2: Solve constraints
@@ -238,16 +274,21 @@ void Cloth::simulate_step() {
                 int num_constraints = pass_sizes[pass_nr];
 
                 if (pass_independent[pass_nr]) {
-                    solve_distance_constraints << <(num_constraints + block_size-1) / block_size, block_size >> > (0, first_constraint, d_inv_mass, d_pos, d_corr,
+                    solve_distance_constraints << <(num_constraints + block_size-1) / block_size, block_size >> > (
+                        0, first_constraint, d_inv_mass, 
+                        d_pos_x, d_pos_y, d_pos_z, d_corr,
                         d_dist_const_ids, d_const_rest_lengths, num_constraints);
                     cudaDeviceSynchronize();
                 }
                 else {
                     cudaMemset(d_corr, 0, num_particles * sizeof(Vec3<float>));
-                    solve_distance_constraints << <(num_constraints + block_size-1) / block_size, block_size >> > (1, first_constraint, d_inv_mass, d_pos, d_corr,
+                    solve_distance_constraints << <(num_constraints + block_size-1) / block_size, block_size >> > (
+                        1, first_constraint, d_inv_mass, 
+                        d_pos_x, d_pos_y, d_pos_z, d_corr,
                         d_dist_const_ids, d_const_rest_lengths, num_constraints);
                     cudaDeviceSynchronize();
-                    add_corrections << <(num_particles + block_size-1) / block_size, block_size >> > (d_pos, d_corr, jacobi_scale, num_particles);
+                    add_corrections << <(num_particles + block_size-1) / block_size, block_size >> > (
+                        d_pos_x, d_pos_y, d_pos_z, d_corr, jacobi_scale, num_particles);
                     cudaDeviceSynchronize();
                 }
                 first_constraint += num_constraints;
@@ -255,20 +296,26 @@ void Cloth::simulate_step() {
         }
         else if (solve_type == 1) {
             cudaMemset(d_corr, 0, num_particles * sizeof(Vec3<float>));
-            solve_distance_constraints << <(num_dist_constraints + block_size-1) / block_size, block_size >> > (1, 0, d_inv_mass, d_pos, d_corr,
+            solve_distance_constraints << <(num_dist_constraints + block_size-1) / block_size, block_size >> > (
+                1, 0, d_inv_mass, d_pos_x, d_pos_y, d_pos_z, d_corr,
                 d_dist_const_ids, d_const_rest_lengths, num_dist_constraints);
             cudaDeviceSynchronize();
-            add_corrections << <(num_particles + block_size-1) / block_size, block_size >> > (d_pos, d_corr, jacobi_scale, num_particles);
+            add_corrections << <(num_particles + block_size-1) / block_size, block_size >> > (
+                d_pos_x, d_pos_y, d_pos_z, d_corr, jacobi_scale, num_particles);
             cudaDeviceSynchronize();
         }
 
         // Step 3: Update velocities based on the new positions
-        update_vel << <(num_particles + block_size-1) / block_size, block_size >> > (dt, d_prev_pos, d_pos, d_vel, num_particles);
+        update_vel << <(num_particles + block_size-1) / block_size, block_size >> > (dt, 
+            d_prev_pos_x, d_prev_pos_y, d_prev_pos_z, 
+            d_pos_x, d_pos_y, d_pos_z, d_vel_x, d_vel_y, d_vel_z, num_particles);
         cudaDeviceSynchronize();
     }
 
     // Step 4: Copy the updated positions back to the host
-    cudaMemcpy(h_pos, d_pos, num_particles * sizeof(Vec3<float>), cudaMemcpyDeviceToHost);
+    cudaMemcpy(h_pos_x, d_pos_x, num_particles * sizeof(float), cudaMemcpyDeviceToHost);
+    cudaMemcpy(h_pos_y, d_pos_y, num_particles * sizeof(float), cudaMemcpyDeviceToHost);
+    cudaMemcpy(h_pos_z, d_pos_z, num_particles * sizeof(float), cudaMemcpyDeviceToHost);
 }
 
 void Cloth::update_mesh() {
@@ -277,7 +324,7 @@ void Cloth::update_mesh() {
 
     int threads_per_block = block_size;
     int blocks_per_grid = (num_tris + threads_per_block - 1) / threads_per_block;
-    add_normals << <blocks_per_grid, threads_per_block >> > (d_pos, d_tri_ids, d_normals, num_tris);
+    add_normals << <blocks_per_grid, threads_per_block >> > (d_pos_x, d_pos_y, d_pos_z, d_tri_ids, d_normals, num_tris);
     cudaDeviceSynchronize();
 
     blocks_per_grid = (num_particles + threads_per_block - 1) / threads_per_block;
@@ -289,10 +336,14 @@ void Cloth::update_mesh() {
 
 void Cloth::reset() {
     // Set velocity array to zero
-    cudaMemset(d_vel, 0, num_particles * sizeof(Vec3<float>));
+    cudaMemset(d_vel_x, 0, num_particles * sizeof(float));
+    cudaMemset(d_vel_y, 0, num_particles * sizeof(float));
+    cudaMemset(d_vel_z, 0, num_particles * sizeof(float));
 
     // Copy rest positions to current positions
-    cudaMemcpy(d_pos, d_rest_pos, num_particles * sizeof(Vec3<float>), cudaMemcpyDeviceToDevice);
+    cudaMemcpy(d_pos_x, d_rest_pos_x, num_particles * sizeof(float), cudaMemcpyDeviceToDevice);
+    cudaMemcpy(d_pos_y, d_rest_pos_y, num_particles * sizeof(float), cudaMemcpyDeviceToDevice);
+    cudaMemcpy(d_pos_z, d_rest_pos_z, num_particles * sizeof(float), cudaMemcpyDeviceToDevice);
 }
 
 void Cloth::raycast_triangle_launch(const Vec3<float>& orig, const Vec3<float>& dir) {
@@ -304,7 +355,7 @@ void Cloth::raycast_triangle_launch(const Vec3<float>& orig, const Vec3<float>& 
     int blocks_per_grid = (num_tris + threads_per_block - 1) / threads_per_block;
 
     raycast_triangle << <blocks_per_grid, threads_per_block >> > (
-        orig, dir, d_pos, d_tri_ids, d_tri_dist, num_tris);
+        orig, dir, d_pos_x, d_pos_y, d_pos_z, d_tri_ids, d_tri_dist, num_tris);
     cudaDeviceSynchronize();
 
     cudaMemcpy(h_tri_dist, d_tri_dist, num_tris * sizeof(float), cudaMemcpyDeviceToHost);
@@ -335,18 +386,26 @@ void Cloth::start_drag(const Vec3<float>& orig, const Vec3<float>& dir) {
 
         // Calculate the drag position based on the ray origin and direction
         Vec3<float> drag_pos = orig + dir * drag_depth;
-        h_pos[drag_particle_nr] = drag_pos;
+        h_pos_x[drag_particle_nr] = drag_pos.x;
+        h_pos_y[drag_particle_nr] = drag_pos.y;
+        h_pos_z[drag_particle_nr] = drag_pos.z;
 
         // Copy the updated particle position back to the device
-        cudaMemcpy(d_pos, h_pos, num_particles * sizeof(Vec3<float>), cudaMemcpyHostToDevice);
+        cudaMemcpy(d_pos_x, h_pos_x, num_particles * sizeof(float), cudaMemcpyHostToDevice);
+        cudaMemcpy(d_pos_y, h_pos_y, num_particles * sizeof(float), cudaMemcpyHostToDevice);
+        cudaMemcpy(d_pos_z, h_pos_z, num_particles * sizeof(float), cudaMemcpyHostToDevice);
     }
 }
 
 void Cloth::drag(const Vec3<float>& orig, const Vec3<float>& dir) {
     if (drag_particle_nr >= 0) {
         Vec3<float> drag_pos = orig + dir * drag_depth;
-        h_pos[drag_particle_nr] = drag_pos;
-        cudaMemcpy(d_pos, h_pos, num_particles * sizeof(Vec3<float>), cudaMemcpyHostToDevice);
+        h_pos_x[drag_particle_nr] = drag_pos.x;
+        h_pos_y[drag_particle_nr] = drag_pos.y;
+        h_pos_z[drag_particle_nr] = drag_pos.z;
+        cudaMemcpy(d_pos_x, h_pos_x, num_particles * sizeof(float), cudaMemcpyHostToDevice);
+        cudaMemcpy(d_pos_y, h_pos_y, num_particles * sizeof(float), cudaMemcpyHostToDevice);
+        cudaMemcpy(d_pos_z, h_pos_z, num_particles * sizeof(float), cudaMemcpyHostToDevice);
     }
 }
 

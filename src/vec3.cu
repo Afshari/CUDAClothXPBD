@@ -1,15 +1,19 @@
 
 #include "vec3.cuh"
 
-__device__ float dot(const Vec3<float>& a, const Vec3<float>& b) {
-    return a.x * b.x + a.y * b.y + a.z * b.z;
+__device__ float dot(
+    const float& a_x, const float& a_y, const float& a_z,
+    const float& b_x, const float& b_y, const float& b_z) {
+    return a_x * b_x + a_y * b_y + a_z * b_z;
 }
 
-__device__ Vec3<float> cross(const Vec3<float>& a, const Vec3<float>& b) {
+__device__ Vec3<float> cross(
+    const float& a_x, const float& a_y, const float& a_z,
+    const float& b_x, const float& b_y, const float& b_z) {
     return Vec3<float>(
-        a.y * b.z - a.z * b.y,
-        a.z * b.x - a.x * b.z,
-        a.x * b.y - a.y * b.x
+        a_y * b_z - a_z * b_y,
+        a_z * b_x - a_x * b_z,
+        a_x * b_y - a_y * b_x
         );
 }
 

@@ -1,7 +1,7 @@
 #pragma once
 
-// #define PROFILE_MODE
-#define PROFILE_LOOP_COUNT	100
+#define PROFILE_MODE
+#define PROFILE_LOOP_COUNT	10
 
 #define PROFILE_SUBSTEPS	1
 #define SIM_SUBSTEPS		30
