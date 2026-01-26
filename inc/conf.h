@@ -1,9 +1,0 @@
-#pragma once
-
-// #define PROFILE_MODE
-#define PROFILE_LOOP_COUNT	100
-
-#define PROFILE_SUBSTEPS	1
-#define SIM_SUBSTEPS		30
-
-#define DEFAULT_BLOCK_SIZE	256

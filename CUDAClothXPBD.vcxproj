@@ -93,9 +93,9 @@
     </CudaCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="inc\app_config.h" />
     <ClInclude Include="inc\camera.h" />
     <ClInclude Include="inc\cloth.cuh" />
-    <ClInclude Include="inc\conf.h" />
     <ClInclude Include="inc\kernels.cuh" />
     <ClInclude Include="inc\state.h" />
     <ClInclude Include="inc\utils.h" />

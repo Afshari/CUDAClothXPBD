@@ -1,13 +1,13 @@
 
 #include "state.h"
-#include "conf.h"
+#include "app_config.h"
 
-State::State(int block_size, int argc, char** argv) :
-    block_size(block_size),
+State::State(const AppConfig& app_config, int argc, char** argv) :
+    app_config(app_config),
     ground_verts(3 * 4 * ground_num_tiles * ground_num_tiles, 0.0f),
     ground_colors(3 * 4 * ground_num_tiles * ground_num_tiles, 0.0f) {
 
-    cloth = new Cloth(block_size, cloth_y, cloth_num_x, cloth_num_y, cloth_spacing, sphere_center, sphere_radius);
+    cloth = new Cloth(app_config.get_block_size(), app_config.get_substeps(), cloth_y, cloth_num_x, cloth_num_y, cloth_spacing, sphere_center, sphere_radius);
 
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
@@ -174,10 +174,11 @@ void State::show_screen_cloth() {
 int frame_counter = 0;
 void State::timer_callback(int value) {
 
-#ifdef PROFILE_MODE
-    frame_counter += 1;
-    if (frame_counter > PROFILE_LOOP_COUNT) exit(0);
-#endif
+    if (app_config.is_profile_mode()) {
+        frame_counter += 1;
+        if (frame_counter > app_config.profile_loop_count) exit(0);
+    }
+
 
     show_screen_cloth();
 

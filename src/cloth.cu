@@ -1,9 +1,9 @@
 #include "cloth.cuh"
-#include "conf.h"
+#include "app_config.h"
 
-Cloth::Cloth(int block_size, float y_offset, int num_x, int num_y, float spacing, 
+Cloth::Cloth(int block_size, int num_substeps, float y_offset, int num_x, int num_y, float spacing, 
     const Vec3<float>& sphere_center, float sphere_radius)
-    :   block_size(block_size), sphere_center(sphere_center), 
+    :   block_size(block_size), num_substeps(num_substeps), sphere_center(sphere_center), 
         sphere_radius(sphere_radius), spacing(spacing) {
 
     init_params(num_x, num_y);
@@ -37,11 +37,6 @@ Cloth::~Cloth() {
 }
 
 void Cloth::init_params(int& num_x, int& num_y) {
-#ifdef PROFILE_MODE
-    num_substeps = PROFILE_SUBSTEPS;
-#else
-    num_substeps = SIM_SUBSTEPS;
-#endif
 
     time_step = 1.0f / 60.0f;
     solve_type = 0;

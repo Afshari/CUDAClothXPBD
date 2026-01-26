@@ -8,7 +8,7 @@
 
 class Cloth {
 public:
-    Cloth(int block_size, float y_offset, int num_x, int num_y, float spacing, 
+    Cloth(int block_size, int num_steps, float y_offset, int num_x, int num_y, float spacing, 
         const Vec3<float>& sphere_center, float sphere_radius);
 
     ~Cloth();
