@@ -13,6 +13,8 @@
   - [Technologies](#technologies)
   - [Technical Overview](#technical-overview)
   - [Performance Notes](#performance-notes)
+        - [The application is memory-bound. Converting the data layout from AoS to SoA improved performance and reduced CUDA kernel runtime.](#the-application-is-memory-bound-converting-the-data-layout-from-aos-to-soa-improved-performance-and-reduced-cuda-kernel-runtime)
+        - [Ongoing work focuses on block size tuning and occupancy optimization through profiling.](#ongoing-work-focuses-on-block-size-tuning-and-occupancy-optimization-through-profiling)
   - [Project Structure](#project-structure)
   - [How to Run](#how-to-run)
   - [Background \& Credit](#background--credit)
@@ -64,6 +66,8 @@ Designed with **persistent device buffers** to avoid per-frame allocations and i
 * Stable real-time simulation with large cloth resolutions
 * Optimized memory usage via persistent CUDA buffers
 
+##### The application is memory-bound. Converting the data layout from AoS to SoA improved performance and reduced CUDA kernel runtime. 
+##### Ongoing work focuses on block size tuning and occupancy optimization through profiling.
 ---
 
 ## Project Structure
@@ -85,6 +89,10 @@ Designed with **persistent device buffers** to avoid per-frame allocations and i
 * glm 1.0.2
 * glew.v140 1.12.0
 * freeglut.3.0.0.v140 1.0.2
+
+**External (Non-NuGet)**
+- Boost C++ Libraries (tested with Boost 1.82)
+
 
 Build and run the solution from Visual Studio.
 
